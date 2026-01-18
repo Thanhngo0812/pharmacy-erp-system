@@ -1,4 +1,4 @@
-package ct08.PharmacyManagement;
+package com.ct08.PharmacyManagement;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
