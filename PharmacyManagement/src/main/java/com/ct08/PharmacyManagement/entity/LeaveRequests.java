@@ -33,7 +33,7 @@ public class LeaveRequests {
     private String reason;
 
     @Enumerated(EnumType.STRING)
-    @Column(columnDefinition = "ENUM('Pending', 'Approved', 'Rejected') DEFAULT 'Pending'")
+    @Column(columnDefinition = "ENUM('Pending', 'Approved','Approved_Salary','Rejected') DEFAULT 'Pending'")
     private ApprovalStatus status;
 
     @ManyToOne
@@ -41,6 +41,6 @@ public class LeaveRequests {
     private Users approvedBy;
 
     public enum ApprovalStatus {
-        Pending, Approved, Rejected
+        Pending, Approved, Approved_Salary, Rejected
     }
 }

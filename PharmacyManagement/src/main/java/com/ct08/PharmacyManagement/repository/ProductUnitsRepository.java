@@ -6,4 +6,6 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface ProductUnitsRepository extends JpaRepository<ProductUnits, Integer> {
+    java.util.List<ProductUnits> findByIsActive(Boolean isActive);
+    java.util.List<ProductUnits> findByProductIdAndIsActive(Integer productId, Boolean isActive);
 }

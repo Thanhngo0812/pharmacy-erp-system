@@ -31,4 +31,12 @@ public class Products {
 
     @Column(name = "min_stock_level")
     private Integer minStockLevel;
+
+    @Enumerated(EnumType.STRING)
+    @Column(columnDefinition = "ENUM('Active', 'Discontinued') DEFAULT 'Discontinued'")
+    private ProductStatus status;
+
+    public enum ProductStatus {
+        Active, Discontinued
+    }
 }

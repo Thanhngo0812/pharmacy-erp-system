@@ -4,14 +4,17 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "Career_Changes")
+@Table(name = "Bonus")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class CareerChanges {
+public class Bonus {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
@@ -20,30 +23,24 @@ public class CareerChanges {
     @JoinColumn(name = "employee_id", nullable = false)
     private Employees employee;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "change_type", nullable = false)
-    private ChangeType changeType;
+    @Column(name = "bonus_name", nullable = false)
+    private String bonusName;
 
-    @Column(name = "old_salary", precision = 15, scale = 2)
-    private java.math.BigDecimal oldSalary;
+    @Column(nullable = false, precision = 15, scale = 2)
+    private BigDecimal amount;
 
-    @Column(name = "new_salary", precision = 15, scale = 2)
-    private java.math.BigDecimal newSalary;
+    @Column(name = "start_date", nullable = false)
+    private LocalDate startDate;
 
-    @ManyToOne
-    @JoinColumn(name = "old_position_id")
-    private Positions oldPosition;
-
-    @ManyToOne
-    @JoinColumn(name = "new_position_id")
-    private Positions newPosition;
-
-    @Column(name = "effective_date", nullable = false)
-    private java.time.LocalDate effectiveDate;
+    @Column(name = "end_date")
+    private LocalDate endDate;
 
     @Enumerated(EnumType.STRING)
     @Column(columnDefinition = "ENUM('Pending', 'Approved', 'Rejected') DEFAULT 'Pending'")
     private ApprovalStatus status;
+
+    @Column(name = "is_active")
+    private Boolean isActive;
 
     @Column(columnDefinition = "TEXT")
     private String reason;
@@ -59,9 +56,8 @@ public class CareerChanges {
     @Column(name = "created_at", insertable = false, updatable = false)
     private LocalDateTime createdAt;
 
-    public enum ChangeType {
-        Hired, Salary_Increase, Promotion, Promotion_With_Salary, other
-    }
+    @Column(name = "updated_at", insertable = false, updatable = false)
+    private LocalDateTime updatedAt;
 
     public enum ApprovalStatus {
         Pending, Approved, Rejected

@@ -31,4 +31,7 @@ public class ProductUnits {
 
     @Column(name = "listed_price", nullable = false, precision = 15, scale = 2)
     private BigDecimal listedPrice;
+
+    @Column(name = "is_active")
+    private Boolean isActive;
 }
