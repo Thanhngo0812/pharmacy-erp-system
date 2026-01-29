@@ -1,9 +1,9 @@
 spring:
   datasource:
-    url: jdbc:mysql://db:3306/PharmacyManagement?useSSL=false&allowPublicKeyRetrieval=true&useUnicode=true&characterEncoding=UTF-8
-    username: root
-    password: thanh0909246319
-    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:postgresql://db:5432/PharmacyManagement
+    username: postgres
+    password: password
+    driver-class-name: org.postgresql.Driver
   jpa:
     hibernate:
       ddl-auto: validate
