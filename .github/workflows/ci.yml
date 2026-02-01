@@ -22,6 +22,10 @@ jobs:
       
       - name: Run Unit Tests
         run: mvn clean test # Test lỗi là dừng tại đây luôn
+        env:
+          SPRING_DATASOURCE_URL: ${{ secrets.SPRING_DATASOURCE_URL }}
+          SPRING_DATASOURCE_USERNAME: ${{ secrets.SPRING_DATASOURCE_USERNAME }}
+          SPRING_DATASOURCE_PASSWORD: ${{ secrets.SPRING_DATASOURCE_PASSWORD }}
       
       - name: Verify Build
         run: mvn package -DskipTests # Build thử ra file .jar để đảm bảo code compile ổn
