@@ -68,6 +68,7 @@ public class UserService {
             // Other roles cannot lock
             throw new RuntimeException("You do not have permission to lock accounts");
         }
+    }
     public UserProfileResponse getMyProfile(String username) {
         Users user = usersRepository.findByUsername(username)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found: " + username));
