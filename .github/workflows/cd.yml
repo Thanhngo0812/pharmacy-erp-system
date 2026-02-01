@@ -21,6 +21,7 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           context: .
+	  file: ./PharmacyManagement/Dockerfile  # Chỉ đường dẫn cụ thể đến file
           push: true
           # Dùng commit hash làm tag để quản lý version chuẩn doanh nghiệp
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/springboot-app:${{ github.sha }}, ${{ secrets.DOCKERHUB_USERNAME }}/springboot-app:latest
