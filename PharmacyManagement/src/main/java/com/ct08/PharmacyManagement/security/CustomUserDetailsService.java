@@ -31,6 +31,14 @@ public class CustomUserDetailsService implements UserDetailsService {
                 .map(role -> new SimpleGrantedAuthority(role.getRoleName()))
                 .collect(Collectors.toSet());
 
-        return new User(user.getUsername(), user.getPasswordHash(), authorities);
+        return new User(
+                user.getUsername(),
+                user.getPasswordHash(),
+                true, // enabled
+                true, // accountNonExpired
+                true, // credentialsNonExpired
+                user.getIsActive() != null && user.getIsActive(), // accountNonLocked
+                authorities
+        );
     }
 }
