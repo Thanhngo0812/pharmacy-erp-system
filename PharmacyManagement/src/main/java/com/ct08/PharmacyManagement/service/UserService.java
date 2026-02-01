@@ -1,25 +1,21 @@
 package com.ct08.PharmacyManagement.service;
 
+import com.ct08.PharmacyManagement.dto.UserProfileResponse;
+import com.ct08.PharmacyManagement.entity.Employees;
 import com.ct08.PharmacyManagement.entity.Roles;
 import com.ct08.PharmacyManagement.entity.Users;
+import com.ct08.PharmacyManagement.exception.ResourceNotFoundException;
 import com.ct08.PharmacyManagement.repository.UsersRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
-
-import com.ct08.PharmacyManagement.dto.UserProfileResponse;
-import com.ct08.PharmacyManagement.entity.Employees;
-import com.ct08.PharmacyManagement.entity.Users;
-import com.ct08.PharmacyManagement.repository.UsersRepository;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.stereotype.Service;
 
 @Service
 public class UserService {
@@ -31,17 +27,16 @@ public class UserService {
         // 1. Get current authenticated user's roles
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication == null || !authentication.isAuthenticated()) {
-            throw new RuntimeException("User not authenticated");
+            throw new AccessDeniedException("User not authenticated");
         }
 
         Set<String> currentRoles = authentication.getAuthorities().stream()
                 .map(grantedAuthority -> grantedAuthority.getAuthority())
                 .collect(Collectors.toSet());
-
         // 2. Fetch the target user
         Optional<Users> targetUserOpt = usersRepository.findById(userId);
         if (targetUserOpt.isEmpty()) {
-            throw new RuntimeException("User not found");
+            throw new ResourceNotFoundException("User not found");
         }
         Users targetUser = targetUserOpt.get();
 
@@ -59,14 +54,14 @@ public class UserService {
                     .anyMatch(role -> role.getRoleName().equals("ROLE_MANAGER") || role.getRoleName().equals("ROLE_WM"));
 
             if (targetIsManagerOrWM) {
-                throw new RuntimeException("HR cannot lock Manager or Warehouse Manager accounts");
+                throw new AccessDeniedException("HR cannot lock Manager or Warehouse Manager accounts");
             }
 
             targetUser.setIsActive(false);
             usersRepository.save(targetUser);
         } else {
             // Other roles cannot lock
-            throw new RuntimeException("You do not have permission to lock accounts");
+            throw new AccessDeniedException("You do not have permission to lock accounts");
         }
     }
     public UserProfileResponse getMyProfile(String username) {
@@ -75,7 +70,7 @@ public class UserService {
 
         Employees employee = user.getEmployee();
         if (employee == null) {
-            throw new RuntimeException("User is not linked to an employee profile");
+            throw new ResourceNotFoundException("User is not linked to an employee profile");
         }
 
         return new UserProfileResponse(
