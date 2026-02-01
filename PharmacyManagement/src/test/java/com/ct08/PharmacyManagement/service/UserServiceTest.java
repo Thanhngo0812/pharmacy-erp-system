@@ -84,7 +84,7 @@ public class UserServiceTest {
         userService.lockAccount(2);
 
         verify(usersRepository, times(1)).save(targetUser);
-        assert(targetUser.getIsActive());
+        assert(!targetUser.getIsActive());
     }
 
     @Test
