@@ -1,0 +1,24 @@
+# .github/workflows/ci.yml
+name: CI Quality Gate
+
+on:
+  pull_request:
+    branches: [ "main" ] # Chạy khi có ai đó tạo PR vào main
+
+jobs:
+  test-and-verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+          cache: maven
+      
+      - name: Run Unit Tests
+        run: mvn clean test # Test lỗi là dừng tại đây luôn
+      
+      - name: Verify Build
+        run: mvn package -DskipTests # Build thử ra file .jar để đảm bảo code compile ổn
