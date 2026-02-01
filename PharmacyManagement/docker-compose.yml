@@ -4,25 +4,25 @@ services:
     ports:
       - "8080:8080"
     depends_on:
-      - db
+      - db_httt
     environment:
-      - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/PharmacyManagement
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://db_httt:5432/PharmacyManagement
       - SPRING_DATASOURCE_USERNAME=postgres
       - SPRING_DATASOURCE_PASSWORD=password
     restart: always
 
-  db:
+  db_httt:
     image: postgres:15
     ports:
       - "5432:5432"
     environment:
-      - POSTGRES_PASSWORD=password
       - POSTGRES_DB=PharmacyManagement
       - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=password
     volumes:
       - ./csdl_postgres.sql:/docker-entrypoint-initdb.d/csdl_postgres.sql
-      - postgres_data:/var/lib/postgresql/data
+      - postgres_data_HTTT:/var/lib/postgresql/data
     restart: always
 
 volumes:
-  postgres_data:
+  postgres_data_HTTT:
