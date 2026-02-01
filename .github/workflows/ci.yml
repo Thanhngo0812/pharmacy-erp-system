@@ -8,6 +8,9 @@ on:
 jobs:
   test-and-verify:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./PharmacyManagement # Thay bằng tên thư mục chứa pom.xml của bạn
     steps:
       - uses: actions/checkout@v4
       - name: Set up JDK 21
