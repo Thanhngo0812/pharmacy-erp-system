@@ -20,7 +20,7 @@ jobs:
       - name: Build and push Docker image
         uses: docker/build-push-action@v5
         with:
-          context: .
+          context: ./PharmacyManagement
           file: ./PharmacyManagement/Dockerfile  # Chỉ đường dẫn cụ thể đến file
           push: true
           # Dùng commit hash làm tag để quản lý version chuẩn doanh nghiệp
