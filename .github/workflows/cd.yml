@@ -26,3 +26,5 @@ jobs:
           # Dùng commit hash làm tag để quản lý version chuẩn doanh nghiệp
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/springboot-app:${{ github.sha }}, ${{ secrets.DOCKERHUB_USERNAME }}/springboot-app:latest
 
+      - name: Deploy to Render
+        run: curl -X GET ${{ secrets.RENDER_DEPLOY_HOOK }}
