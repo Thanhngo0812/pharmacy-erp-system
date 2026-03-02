@@ -26,5 +26,25 @@ jobs:
           # Dùng commit hash làm tag để quản lý version chuẩn doanh nghiệp
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/springboot-app:${{ github.sha }}, ${{ secrets.DOCKERHUB_USERNAME }}/springboot-app:latest
 
-      - name: Deploy to Render
-        run: curl -X GET ${{ secrets.RENDER_DEPLOY_HOOK }}
+      - name: Deploy to DigitalOcean via SSH
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.DO_HOST }}
+          username: root
+          password: ${{ secrets.DO_PASSWORD }}
+          script: |
+            # 1. Di chuyển vào thư mục dự án
+            cd ~/my-app
+            # 2. Đăng nhập Docker Hub trên server (nếu repo private)
+            echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
+            touch .env # Đảm bảo file tồn tại để không lỗi lệnh bên dưới
+            
+            grep -q "^DOCKER_USERNAME=" .env && sed -i "s|^DOCKER_USERNAME=.*|DOCKER_USERNAME=${{ secrets.DOCKERHUB_USERNAME }}|" .env || echo "DOCKER_USERNAME=${{ secrets.DOCKERHUB_USERNAME }}" >> .env
+            grep -q "^APP_TAG=" .env && sed -i "s|^APP_TAG=.*|APP_TAG=latest|" .env || echo "APP_TAG=latest" >> .env            # 3. Kéo bản mới nhất về
+            docker compose pull
+            
+            # 4. Khởi động lại các container mà không làm gián đoạn
+            docker compose up -d --remove-orphans
+            
+            # 5. Dọn dẹp các image cũ để tiết kiệm dung lượng (server 25GB SSD nên cần cái này)
+            docker image prune -f
