@@ -1,6 +1,6 @@
 spring:
   datasource:
-    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/PharmacyManagement}
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/PharmacyManagement?stringtype=unspecified}
     username: ${SPRING_DATASOURCE_USERNAME:postgres}
     password: ${SPRING_DATASOURCE_PASSWORD:password}
     driver-class-name: org.postgresql.Driver
@@ -11,3 +11,20 @@ spring:
     properties:
       hibernate:
         format_sql: true
+
+decorator:
+  datasource:
+    p6spy:
+      # Bật/Tắt P6Spy
+      enable-logging: true
+      # Định dạng log: multiline giúp câu SQL xuống dòng dễ đọc
+      logging: slf4j
+      multiline: true
+
+logging:
+  level:
+    # Chỉ hiện log của P6Spy, tắt log mặc định của Hibernate để tránh trùng lặp
+    com.p6spy: DEBUG
+    org.hibernate.SQL: OFF
+    org.hibernate.type.descriptor.sql: OFF
+    org.springframework.web.servlet.mvc.method.annotation.ExceptionHandlerExceptionResolver: OFF

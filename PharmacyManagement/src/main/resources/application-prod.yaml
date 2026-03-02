@@ -11,3 +11,19 @@ spring:
     properties:
       hibernate:
         format_sql: true
+
+logging:
+  level:
+    com:
+      ct08:
+        PharmacyManagement: INFO
+        com.p6spy: OFF # Không cho phép log p6spy in ra bất cứ thứ gì
+        org.hibernate.SQL: OFF
+        org.hibernate.type.descriptor.sql: OFF
+        org.springframework.web.servlet.mvc.method.annotation.ExceptionHandlerExceptionResolver: OFF
+decorator:
+  datasource:
+    p6spy:
+      enable-logging: false # Tắt P6Spy hoàn toàn
+
+

@@ -1,0 +1,320 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with Jaspersoft Studio -->
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd"
+    name="MonthlyPayroll" pageWidth="842" pageHeight="595" orientation="Landscape" columnWidth="802" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="abcdef12-3456-7890-abcd-ef1234567890">
+    <property name="com.jaspersoft.studio.data.defaultdataadapter" value="One Empty Record"/>
+    
+
+    <subDataset name="ValueDataset" uuid="b2c3d4e5-f6a7-8b9c-0d1e-2f3a4b5c6d7e">
+        <field name="bonusName" class="java.lang.String"/>
+        <field name="amount" class="java.math.BigDecimal"/>
+    </subDataset>
+
+    <parameter name="month" class="java.lang.Integer"/>
+    <parameter name="year" class="java.lang.Integer"/>
+    <parameter name="totalEmployees" class="java.lang.Integer"/>
+    <parameter name="totalPayroll" class="java.math.BigDecimal"/>
+    <parameter name="totalBonus" class="java.math.BigDecimal"/>
+    <parameter name="totalDeduction" class="java.math.BigDecimal"/>
+
+    <field name="employeeId" class="java.lang.Integer"/>
+    <field name="fullName" class="java.lang.String"/>
+    <field name="positionName" class="java.lang.String"/>
+    <field name="baseSalary" class="java.math.BigDecimal"/>
+    <field name="salaryNote" class="java.lang.String"/>
+    <field name="workingDays" class="java.lang.Integer"/>
+    <field name="paidLeaveDays" class="java.lang.Integer"/>
+    <field name="unpaidLeaveDays" class="java.lang.Integer"/>
+    <field name="leaveDeduction" class="java.math.BigDecimal"/>
+    <field name="bonuses" class="java.util.List"/>
+    <field name="totalBonus" class="java.math.BigDecimal"/>
+    <field name="totalSalary" class="java.math.BigDecimal"/>
+
+    <background>
+        <band splitType="Stretch"/>
+    </background>
+
+    <title>
+        <band height="80" splitType="Stretch">
+            <staticText>
+                <reportElement x="0" y="0" width="802" height="40" uuid="8a9b81b3-4f93-47cb-abfd-8df04e2eb9d1"/>
+                <textElement textAlignment="Center" verticalAlignment="Middle">
+                    <font fontName="DejaVu Sans" size="24" isBold="true" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+                </textElement>
+                <text><![CDATA[BẢNG LƯƠNG NHÂN VIÊN CHI TIẾT]]></text>
+            </staticText>
+            <textField>
+                <reportElement x="0" y="40" width="802" height="30" uuid="1c0c1692-f018-498b-968b-57f6b0bf58ba"/>
+                <textElement textAlignment="Center" verticalAlignment="Middle">
+                    <font fontName="DejaVu Sans" size="16" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+                </textElement>
+                <textFieldExpression><![CDATA["Tháng: " + $P{month} + " / " + $P{year}]]></textFieldExpression>
+            </textField>
+        </band>
+    </title>
+
+    <columnHeader>
+        <band height="40" splitType="Stretch">
+            <staticText>
+                <reportElement x="0" y="0" width="30" height="40" uuid="f9dcc8ac-4061-4560-af84-e4c16bcd01cb"/>
+                <box><pen lineWidth="0.75"/></box>
+                <textElement textAlignment="Center" verticalAlignment="Middle">
+                    <font fontName="DejaVu Sans" size="7" isBold="true" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+                </textElement>
+                <text><![CDATA[ID]]></text>
+            </staticText>
+            <staticText>
+                <reportElement x="30" y="0" width="150" height="40" uuid="6c99c585-e7a9-4676-905a-52f146473bb4"/>
+                <box><pen lineWidth="0.75"/></box>
+                <textElement textAlignment="Center" verticalAlignment="Middle">
+                    <font fontName="DejaVu Sans" size="7" isBold="true" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+                </textElement>
+                <text><![CDATA[Họ Tên]]></text>
+            </staticText>
+            <staticText>
+                <reportElement x="180" y="0" width="80" height="40" uuid="2a0cb4fc-f472-4d0f-a2e6-a05ffdeef566"/>
+                <box><pen lineWidth="0.75"/></box>
+                <textElement textAlignment="Center" verticalAlignment="Middle">
+                    <font fontName="DejaVu Sans" size="7" isBold="true" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+                </textElement>
+                <text><![CDATA[Lương CB]]></text>
+            </staticText>
+            <staticText>
+                <reportElement x="260" y="0" width="30" height="40" uuid="0e1e2d3d-4f5e-6f7a-8b9c-0d1e2f3a4b11"/>
+                <box><pen lineWidth="0.75"/></box>
+                <textElement textAlignment="Center" verticalAlignment="Middle">
+                    <font fontName="DejaVu Sans" size="6" isBold="true" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+                </textElement>
+                <text><![CDATA[Công]]></text>
+            </staticText>
+            <staticText>
+                <reportElement x="290" y="0" width="30" height="40" uuid="1e2e3e4d-5f6e-7a8b-9c0d-e1f2a3b45c22"/>
+                <box><pen lineWidth="0.75"/></box>
+                <textElement textAlignment="Center" verticalAlignment="Middle">
+                    <font fontName="DejaVu Sans" size="6" isBold="true" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+                </textElement>
+                <text><![CDATA[Phép P]]></text>
+            </staticText>
+            <staticText>
+                <reportElement x="320" y="0" width="30" height="40" uuid="2e3e4e5f-6a7b-8c9d-0e1f-2a3b4c5d6e33"/>
+                <box><pen lineWidth="0.75"/></box>
+                <textElement textAlignment="Center" verticalAlignment="Middle">
+                    <font fontName="DejaVu Sans" size="6" isBold="true" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+                </textElement>
+                <text><![CDATA[Nghỉ K]]></text>
+            </staticText>
+            <staticText>
+                <reportElement x="350" y="0" width="60" height="40" uuid="f0d1e5bd-e7d6-41fb-94f4-0b1a1cfce223"/>
+                <box><pen lineWidth="0.75"/></box>
+                <textElement textAlignment="Center" verticalAlignment="Middle">
+                    <font fontName="DejaVu Sans" size="7" isBold="true" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+                </textElement>
+                <text><![CDATA[Trừ nghỉ]]></text>
+            </staticText>
+
+            <staticText>
+                <reportElement x="410" y="0" width="200" height="40" uuid="d0e1f2a3-b4c5-d6e7-f8a9-0b1c2d3e4f5a"/>
+                <box><pen lineWidth="0.75"/></box>
+                <textElement textAlignment="Center" verticalAlignment="Middle">
+                    <font fontName="DejaVu Sans" size="7" isBold="true" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+                </textElement>
+                <text><![CDATA[Tên khoản thưởng/phạt]]></text>
+            </staticText>
+            <staticText>
+                <reportElement x="610" y="0" width="112" height="40" uuid="e1f2a3b4-c5d6-e7f8-a90b-1c2d3e4f5a6b"/>
+                <box><pen lineWidth="0.75"/></box>
+                <textElement textAlignment="Center" verticalAlignment="Middle">
+                    <font fontName="DejaVu Sans" size="7" isBold="true" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+                </textElement>
+                <text><![CDATA[Số tiền]]></text>
+            </staticText>
+            <staticText>
+                <reportElement x="722" y="0" width="80" height="40" uuid="255cddb2-e1d5-45ea-90ab-cdddf639de1a"/>
+                <box><pen lineWidth="0.75"/></box>
+                <textElement textAlignment="Center" verticalAlignment="Middle">
+                    <font fontName="DejaVu Sans" size="7" isBold="true" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+                </textElement>
+                <text><![CDATA[Thực Lãnh]]></text>
+            </staticText>
+
+        </band>
+    </columnHeader>
+
+    <detail>
+        <band height="15" splitType="Stretch">
+            <textField>
+                <reportElement stretchType="ContainerHeight" x="0" y="0" width="30" height="15" uuid="bbfe3929-37af-4b2a-8c54-da9cf66fd63f"/>
+                <box><pen lineWidth="0.5"/></box>
+                <textElement textAlignment="Center" verticalAlignment="Middle">
+                    <font fontName="DejaVu Sans" size="6" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+                </textElement>
+                <textFieldExpression><![CDATA[$F{employeeId}]]></textFieldExpression>
+            </textField>
+            <textField textAdjust="StretchHeight">
+                <reportElement stretchType="ContainerHeight" x="30" y="0" width="150" height="15" uuid="3d8e57ee-a066-4835-9618-9710cc856d35"/>
+                <box leftPadding="3"><pen lineWidth="0.5"/></box>
+                <textElement verticalAlignment="Middle">
+                    <font fontName="DejaVu Sans" size="6" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+                </textElement>
+                <textFieldExpression><![CDATA[$F{fullName}]]></textFieldExpression>
+            </textField>
+            
+            <textField textAdjust="StretchHeight" isBlankWhenNull="true">
+                <reportElement stretchType="ContainerHeight" x="180" y="0" width="80" height="15" uuid="86756209-42b7-4a0b-93de-c4b69dff4305"/>
+                <box rightPadding="3" topPadding="2" bottomPadding="2"><pen lineWidth="0.5"/></box>
+                <textElement textAlignment="Right" verticalAlignment="Middle" markup="styled">
+                    <font fontName="DejaVu Sans" size="7" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+                </textElement>
+                <textFieldExpression><![CDATA[
+                    "<style isBold='true'>" + new java.text.DecimalFormat("#,##0").format($F{baseSalary}) + "</style>" +
+                    ($F{salaryNote} != null && !$F{salaryNote}.isEmpty() ? "\n<style size='5' forecolor='#666666' isItalic='true'>" + $F{salaryNote} + "</style>" : "")
+                ]]></textFieldExpression>
+            </textField>
+
+            <textField>
+                <reportElement stretchType="ContainerHeight" x="260" y="0" width="30" height="15" uuid="3a4b5c6d-7e8f-9a0b-1c2d-3e4f5a6b7c8d"/>
+                <box><pen lineWidth="0.5"/></box>
+                <textElement textAlignment="Center" verticalAlignment="Middle">
+                    <font fontName="DejaVu Sans" size="6" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+                </textElement>
+                <textFieldExpression><![CDATA[$F{workingDays}]]></textFieldExpression>
+            </textField>
+            <textField>
+                <reportElement stretchType="ContainerHeight" x="290" y="0" width="30" height="15" uuid="4b5c6d7e-8f9a-0b1c-2d3e-4f5a6b7c8d9e"/>
+                <box><pen lineWidth="0.5"/></box>
+                <textElement textAlignment="Center" verticalAlignment="Middle">
+                    <font fontName="DejaVu Sans" size="6" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+                </textElement>
+                <textFieldExpression><![CDATA[$F{paidLeaveDays}]]></textFieldExpression>
+            </textField>
+            <textField>
+                <reportElement stretchType="ContainerHeight" x="320" y="0" width="30" height="15" uuid="5c6d7e8f-9a0b-1c2d-3e4f-5a6b7c8d9e0f"/>
+                <box><pen lineWidth="0.5"/></box>
+                <textElement textAlignment="Center" verticalAlignment="Middle">
+                    <font fontName="DejaVu Sans" size="6" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+                </textElement>
+                <textFieldExpression><![CDATA[$F{unpaidLeaveDays}]]></textFieldExpression>
+            </textField>
+            
+            <textField pattern="#,##0">
+                <reportElement stretchType="ContainerHeight" x="350" y="0" width="60" height="15" uuid="bc09d1bf-6548-4394-bb9b-b53051fe4d9f"/>
+                <box rightPadding="3"><pen lineWidth="0.5"/></box>
+                <textElement textAlignment="Right" verticalAlignment="Middle">
+                    <font fontName="DejaVu Sans" size="7" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+                </textElement>
+                <textFieldExpression><![CDATA[$F{leaveDeduction}]]></textFieldExpression>
+            </textField>
+
+            <frame>
+                <reportElement stretchType="ContainerHeight" x="410" y="0" width="312" height="15" uuid="0b1c2d3e-4f5a-6b7c-8d9e-0f1a2b3c4d5e"/>
+                <box><pen lineWidth="0.5"/></box>
+                <componentElement>
+                    <reportElement x="0" y="0" width="312" height="15" uuid="1b2c3d4e-5f6a-7b8c-9d0e-1f2a3b4c5d6e"/>
+                    <jr:list xmlns:jr="http://jasperreports.sourceforge.net/jasperreports/components" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports/components http://jasperreports.sourceforge.net/xsd/components.xsd" printOrder="Vertical">
+                        <datasetRun subDataset="ValueDataset" uuid="1c2d3e4f-5a6b-7c8d-9e0f-1a2b3c4d5e6f">
+                            <dataSourceExpression><![CDATA[new net.sf.jasperreports.engine.data.JRBeanCollectionDataSource($F{bonuses})]]></dataSourceExpression>
+                        </datasetRun>
+                        <jr:listContents height="15" width="312">
+                            <textField textAdjust="StretchHeight">
+                                <reportElement x="0" y="0" width="200" height="15" uuid="2d3e4f5a-6b7c-8d9e-0f1a-2b3c4d5e6f7a"/>
+                                <box leftPadding="3" rightPadding="0" topPadding="0" bottomPadding="1"><pen lineWidth="0.0"/><bottomPen lineWidth="0.25" lineColor="#CCCCCC"/></box>
+                                <textElement verticalAlignment="Middle">
+                                    <font fontName="DejaVu Sans" size="6" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+                                </textElement>
+                                <textFieldExpression><![CDATA[$F{bonusName}]]></textFieldExpression>
+                            </textField>
+                            <textField pattern="#,##0">
+                                <reportElement x="200" y="0" width="112" height="15" uuid="3d4e5f6a-7b8c-9d0e-1f2a-3b4c5d6e7f8a">
+                                    <propertyExpression name="net.sf.jasperreports.style.forecolor"><![CDATA[$F{amount} != null && $F{amount}.compareTo(java.math.BigDecimal.ZERO) < 0 ? "#FF0000" : "#000000"]]></propertyExpression>
+                                </reportElement>
+                                <box leftPadding="0" rightPadding="3" topPadding="0" bottomPadding="1"><pen lineWidth="0.0"/><bottomPen lineWidth="0.25" lineColor="#CCCCCC"/></box>
+                                <textElement textAlignment="Right" verticalAlignment="Middle">
+                                    <font fontName="DejaVu Sans" size="6" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+                                </textElement>
+                                <textFieldExpression><![CDATA[$F{amount}]]></textFieldExpression>
+                            </textField>
+                        </jr:listContents>
+                    </jr:list>
+                </componentElement>
+                <!-- Dòng tổng cộng cho từng nhân viên -->
+                <staticText>
+                    <reportElement positionType="Float" x="0" y="15" width="200" height="12" uuid="d0e1f2a3-b4c5-d6e7-f8a9-0b1c2d3e4f5b"/>
+                    <box leftPadding="3"><topPen lineWidth="0.5" lineColor="#666666"/></box>
+                    <textElement verticalAlignment="Middle">
+                        <font fontName="DejaVu Sans" size="6" isBold="true" isItalic="true" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+                    </textElement>
+                    <text><![CDATA[Tổng cộng khoản thưởng/phạt:]]></text>
+                </staticText>
+                <textField pattern="#,##0" isBlankWhenNull="true">
+                    <reportElement positionType="Float" x="200" y="15" width="112" height="12" uuid="e1f2a3b4-c5d6-e7f8-a90b-1c2d3e4f5a6c">
+                        <propertyExpression name="net.sf.jasperreports.style.forecolor"><![CDATA[$F{totalBonus} != null && $F{totalBonus}.compareTo(java.math.BigDecimal.ZERO) < 0 ? "#FF0000" : "#000000"]]></propertyExpression>
+                    </reportElement>
+                    <box rightPadding="3"><topPen lineWidth="0.5" lineColor="#666666"/></box>
+                    <textElement textAlignment="Right" verticalAlignment="Middle">
+                        <font fontName="DejaVu Sans" size="6" isBold="true" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+                    </textElement>
+                    <textFieldExpression><![CDATA[$F{totalBonus}]]></textFieldExpression>
+                </textField>
+            </frame>
+
+            <textField pattern="#,##0">
+                <reportElement stretchType="ContainerHeight" x="722" y="0" width="80" height="15" uuid="b1adeab8-f542-45e0-afd3-ea5532edb762"/>
+                <box rightPadding="3"><pen lineWidth="0.5"/></box>
+                <textElement textAlignment="Right" verticalAlignment="Middle">
+                    <font fontName="DejaVu Sans" size="7" isBold="true" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+                </textElement>
+                <textFieldExpression><![CDATA[$F{totalSalary}]]></textFieldExpression>
+            </textField>
+        </band>
+    </detail>
+
+    <summary>
+        <band height="120" splitType="Stretch">
+             <staticText>
+                <reportElement x="0" y="20" width="200" height="25" uuid="e5f6a7b8-c9d0-1e2f-3a4b-5c6d7e8f90a2"/>
+                <textElement verticalAlignment="Middle">
+                    <font fontName="DejaVu Sans" size="12" isBold="true" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+                </textElement>
+                <text><![CDATA[TỔNG KẾT:]]></text>
+            </staticText>
+            
+            <textField>
+                <reportElement x="0" y="45" width="300" height="20" uuid="e5f6a7b8-c9d0-1e2f-3a4b-5c6d7e8f90a3"/>
+                <textElement verticalAlignment="Middle">
+                    <font fontName="DejaVu Sans" size="10" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+                </textElement>
+                <textFieldExpression><![CDATA["Tổng số nhân viên: " + $P{totalEmployees}]]></textFieldExpression>
+            </textField>
+
+            <textField>
+                <reportElement x="0" y="65" width="300" height="20" uuid="e5f6a7b8-c9d0-1e2f-3a4b-5c6d7e8f90a4"/>
+                <textElement verticalAlignment="Middle">
+                    <font fontName="DejaVu Sans" size="10" isBold="true" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+                </textElement>
+                <textFieldExpression><![CDATA["Tổng quỹ lương thực trả: " + new java.text.DecimalFormat("#,##0").format($P{totalPayroll}) + " VNĐ"]]></textFieldExpression>
+            </textField>
+
+            <textField>
+                <reportElement x="400" y="45" width="300" height="20" uuid="e5f6a7b8-c9d0-1e2f-3a4b-5c6d7e8f90a5"/>
+                <textElement verticalAlignment="Middle">
+                    <font fontName="DejaVu Sans" size="10" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+                </textElement>
+                <textFieldExpression><![CDATA["Tổng tiền thưởng/trợ cấp: " + new java.text.DecimalFormat("#,##0").format($P{totalBonus}) + " VNĐ"]]></textFieldExpression>
+            </textField>
+
+            <textField>
+                <reportElement x="400" y="65" width="300" height="20" uuid="e5f6a7b8-c9d0-1e2f-3a4b-5c6d7e8f90a6"/>
+                <textElement verticalAlignment="Middle">
+                    <font fontName="DejaVu Sans" size="10" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+                </textElement>
+                <textFieldExpression><![CDATA["Tổng khấu trừ nghỉ: " + new java.text.DecimalFormat("#,##0").format($P{totalDeduction}) + " VNĐ"]]></textFieldExpression>
+            </textField>
+            
+            <line>
+                <reportElement x="0" y="10" width="802" height="1" uuid="e5f6a7b8-c9d0-1e2f-3a4b-5c6d7e8f90a7"/>
+            </line>
+        </band>
+    </summary>
+</jasperReport>
