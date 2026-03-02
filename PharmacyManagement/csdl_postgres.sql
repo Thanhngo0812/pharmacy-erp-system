@@ -6,25 +6,43 @@
 -- We will skip CREATE DATABASE and USE.
 
 -- ==========================================================
--- 2. QUẢN TRỊ HỆ THỐNG (ADMIN SERVER) 
+-- 2. QUẢN TRỊ HỆ THỐNG (ADMIN SERVER) & HÀM BỔ TRỢ
 -- ==========================================================
+
+CREATE OR REPLACE FUNCTION vn_unaccent(text)
+  RETURNS text AS
+$func$
+SELECT translate($1,
+  'áàảãạăắằẳẵặâấầẩẫậđéèẻẽẹêếềểễệíìỉĩịóòỏõọôốồổỗộơớờởỡợúùủũụưứừửữựýỳỷỹỵÁÀẢÃẠĂẮẰẲẴẶÂẤẦẨẪẬĐÉÈẺẼẸÊẾỀỂỄỆÍÌỈĨỊÓÒỎÕỌÔỐỒỔỖỘƠỚỜỞỠỢÚÙỦŨỤƯỨỪỬỮỰÝỲỶỸỴ',
+  'aaaaaaaaaaaaaaaaadeeeeeeeeeeeiiiiiooooooooooooooooouuuuuuuuuuuyyyyyAAAAAAAAAAAAAAAAADEEEEEEEEEEEIIIIIOOOOOOOOOOOOOOOOOUUUUUUUUUUUYYYYY'
+);
+$func$  LANGUAGE sql IMMUTABLE;
 
 CREATE TABLE Roles (
     id SERIAL PRIMARY KEY,
     role_name VARCHAR(50) NOT NULL UNIQUE -- Admin, Manager, HR, Warehouse, Sales 
 );
 
+CREATE TYPE request_status_enum AS ENUM ('Pending', 'Approved', 'Rejected');
+CREATE TYPE mailstatus_enum AS ENUM ('sending', 'sended', 'failed');
+
 CREATE TABLE Positions (
     id SERIAL PRIMARY KEY,
-    position_name VARCHAR(100) NOT NULL UNIQUE -- Dược sĩ, Quản lý kho, Kế toán... 
+    position_name VARCHAR(100) NOT NULL UNIQUE, -- Dược sĩ, Quản lý kho, Kế toán... 
+    status request_status_enum DEFAULT 'Pending',
+    reason TEXT,
+    approval_reason TEXT,
+    proposed_by INT,
+    approved_by INT
 );
 
 -- Create custom types for ENUMs
-CREATE TYPE employee_status_enum AS ENUM ('Active', 'Resigned');
+CREATE TYPE employee_status_enum AS ENUM ('Active', 'Resigned','Waiting','Rejected');
 
 CREATE TABLE Employees (
     id SERIAL PRIMARY KEY,
-    full_name VARCHAR(100) NOT NULL,
+    last_name VARCHAR(100),
+    first_name VARCHAR(100) NOT NULL,
     email VARCHAR(100) UNIQUE,
     phone VARCHAR(15),
     image_url VARCHAR(255),
@@ -40,6 +58,9 @@ CREATE TABLE Users (
     employee_id INT UNIQUE,
     username VARCHAR(50) NOT NULL UNIQUE,
     password_hash VARCHAR(255) NOT NULL,
+    mailstatus mailstatus_enum DEFAULT 'sending',
+    reset_otp VARCHAR(6),
+    otp_expiry TIMESTAMP,
     is_active BOOLEAN DEFAULT TRUE,
     FOREIGN KEY (employee_id) REFERENCES Employees(id) ON DELETE SET NULL
 );
@@ -56,8 +77,8 @@ CREATE TABLE User_Roles (
 -- 3. QUẢN LÝ NHÂN SỰ & BIẾN ĐỘNG (HR & MANAGER) 
 -- ==========================================================
 
-CREATE TYPE career_change_type_enum AS ENUM ('Hired','Salary_Increase', 'Promotion', 'Promotion_With_Salary','other');
-CREATE TYPE request_status_enum AS ENUM ('Pending', 'Approved', 'Rejected');
+CREATE TYPE career_change_type_enum AS ENUM ('Hired','Salary_Increase', 'Promotion', 'Promotion_With_Salary','other','Resigned','Rehired');
+-- request_status_enum moved up for Positions
 CREATE TYPE leave_status_enum AS ENUM ('Pending', 'Approved','Approved_Salary' ,'Rejected');
 
 CREATE TABLE Career_Changes (
@@ -83,6 +104,8 @@ CREATE TABLE Career_Changes (
     reason TEXT,
     proposed_by INT, -- Nhân sự đề xuất
     approved_by INT, -- Quản lý duyệt
+    approval_reason TEXT, -- Lý do duyệt/từ chối
+    is_applied BOOLEAN DEFAULT FALSE,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 
     FOREIGN KEY (employee_id) REFERENCES Employees(id),
@@ -100,6 +123,7 @@ CREATE TABLE Leave_Requests (
     start_date TIMESTAMP NOT NULL,
     end_date TIMESTAMP NOT NULL,
     reason TEXT,
+    approval_reason TEXT,
     status leave_status_enum DEFAULT 'Pending',
     approved_by INT,
     FOREIGN KEY (employee_id) REFERENCES Employees(id),
@@ -135,6 +159,7 @@ CREATE TABLE Bonus (
     is_active BOOLEAN DEFAULT TRUE,    -- Dùng để tạm ngưng khoản thưởng sau khi đã duyệt
     
     reason TEXT,                       -- Lý do thưởng
+    approval_reason TEXT,              -- Lý do duyệt/từ chối
     proposed_by INT,                   -- ID nhân sự/quản lý tạo đề xuất
     approved_by INT,                   -- ID sếp/admin duyệt
     
@@ -159,6 +184,22 @@ CREATE TRIGGER update_bonus_updated_at
     BEFORE UPDATE ON Bonus
     FOR EACH ROW
     EXECUTE PROCEDURE update_updated_at_column();
+
+-- ==========================================================
+-- BỔ SUNG: LỊCH SỬ BẬT/TẮT KHOẢN THƯỞNG
+-- Lưu lại mỗi lần toggle is_active để truy xuất lương theo tháng
+-- ==========================================================
+
+CREATE TABLE Bonus_Toggle_History (
+    id SERIAL PRIMARY KEY,
+    bonus_id INT NOT NULL,
+    is_active BOOLEAN NOT NULL,                    -- true = bật, false = tắt
+    toggled_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, -- Ngày giờ bật/tắt
+    toggled_by INT,                                -- ID người thao tác
+    reason TEXT,                                   -- Lý do bật/tắt
+    FOREIGN KEY (bonus_id) REFERENCES Bonus(id) ON DELETE CASCADE,
+    FOREIGN KEY (toggled_by) REFERENCES Users(id)
+);
 
 -- ==========================================================
 -- 4. DANH MỤC, SẢN PHẨM & ĐƠN VỊ TÍNH (KHO) 
@@ -307,24 +348,24 @@ INSERT INTO Roles (role_name) VALUES
 -- ==========================================================
 -- 2. TẠO CÁC CHỨC VỤ (POSITIONS)
 -- ==========================================================
-INSERT INTO Positions (position_name) VALUES 
-('Quản trị hệ thống'),
-('Quản lý chi nhánh'),
-('Trưởng phòng nhân sự'),
-('Trưởng kho'),
-('Nhân viên kho'),
-('Dược sĩ bán hàng');
+INSERT INTO Positions (position_name, status, reason, proposed_by, approved_by) VALUES 
+('Quản trị hệ thống', 'Approved', 'Khởi tạo hệ thống', 1, 1),
+('Quản lý chi nhánh', 'Approved', 'Khởi tạo hệ thống', 1, 1),
+('Trưởng phòng nhân sự', 'Approved', 'Khởi tạo hệ thống', 1, 1),
+('Trưởng kho', 'Approved', 'Khởi tạo hệ thống', 1, 1),
+('Nhân viên kho', 'Approved', 'Khởi tạo hệ thống', 1, 1),
+('Dược sĩ bán hàng', 'Approved', 'Khởi tạo hệ thống', 1, 1);
 
 -- ==========================================================
 -- 3. TẠO NHÂN VIÊN (EMPLOYEES)
 -- ==========================================================
-INSERT INTO Employees (full_name, email, phone, current_position_id, current_salary, hire_date, status) VALUES 
-('Nguyễn Admin', 'admin@pharmacy.com', '0901111111', 1, 30000000, '2024-01-01', 'Active'),
-('Trần Manager', 'manager@pharmacy.com', '0902222222', 2, 25000000, '2024-01-01', 'Active'),
-('Lê HR', 'hm@pharmacy.com', '0903333333', 3, 20000000, '2024-01-10', 'Active'),
-('Phạm Warehouse', 'wm@pharmacy.com', '0904444444', 4, 18000000, '2024-01-15', 'Active'),
-('Hoàng Stocker', 'ws@pharmacy.com', '0905555555', 5, 10000000, '2024-01-20', 'Active'),
-('Vũ Seller', 'ss@pharmacy.com', '0906666666', 6, 12000000, '2024-01-25', 'Active');
+INSERT INTO Employees (first_name, last_name ,email, phone, current_position_id, current_salary, hire_date, status,image_url) VALUES
+('An','Nguyễn Văn' ,'admin@pharmacy.com', '0901111111', 1, 30000000, '2024-01-01', 'Active','https://res.cloudinary.com/dfcb3zzw9/image/upload/v1771059314/martin-odegaard-1808093623_yr8iat.jpg'),
+('Vũ', 'Ngô Văn','manager@pharmacy.com', '0902222222', 2, 25000000, '2024-01-01', 'Active','https://res.cloudinary.com/dfcb3zzw9/image/upload/v1771059314/leandro-trossard-1808110502_tocyfw.jpg'),
+('Cường','Phan Cẩm', 'hm@pharmacy.com', '0903333333', 3, 20000000, '2024-01-10', 'Active','https://res.cloudinary.com/dfcb3zzw9/image/upload/v1771059313/kai-havertz-1808110502_htlqhk.jpg'),
+('Thu','Phạm Warehouse', 'wm@pharmacy.com', '0904444444', 4, 18000000, '2024-01-15', 'Active','https://res.cloudinary.com/dfcb3zzw9/image/upload/v1771059311/declan-rice-1808093621_cztbtw.jpg'),
+('Thiên','Hoàng Stocker', 'ws@pharmacy.com', '0905555555', 5, 10000000, '2024-01-20', 'Active','https://res.cloudinary.com/dfcb3zzw9/image/upload/v1771059310/riccardo-calafiori-1808091049_p72b98.jpg'),
+('Hán','Vũ Seller', 'ss@pharmacy.com', '0906666666', 6, 12000000, '2024-01-25', 'Active','https://res.cloudinary.com/dfcb3zzw9/image/upload/v1771059310/william-saliba-1808090242_ucyaz9.jpg');
 
 -- ==========================================================
 -- 4. TẠO TÀI KHOẢN NGƯỜI DÙNG (USERS)
@@ -353,10 +394,39 @@ INSERT INTO User_Roles (user_id, role_id) VALUES
 -- 6. GHI NHẬN BIẾN ĐỘNG LƯƠNG/HỢP ĐỒNG LÚC MỚI VÀO (CAREER_CHANGES)
 -- Thiết lập trạng thái 'Hired' và 'Approved' (Lấy user Admin id=1 duyệt)
 -- ==========================================================
-INSERT INTO Career_Changes (employee_id, change_type, old_salary, new_salary, old_position_id, new_position_id, effective_date, status, reason, proposed_by, approved_by) VALUES 
-(1, 'Hired', 0, 30000000, NULL, 1, '2024-01-01', 'Approved', 'Tuyển dụng mới - Quản trị hệ thống', 1, 1),
-(2, 'Hired', 0, 25000000, NULL, 2, '2024-01-01', 'Approved', 'Tuyển dụng mới - Quản lý', 1, 1),
-(3, 'Hired', 0, 20000000, NULL, 3, '2024-01-10', 'Approved', 'Tuyển dụng mới - Quản lý nhân sự', 1, 1),
-(4, 'Hired', 0, 18000000, NULL, 4, '2024-01-15', 'Approved', 'Tuyển dụng mới - Trưởng kho', 1, 1),
-(5, 'Hired', 0, 10000000, NULL, 5, '2024-01-20', 'Approved', 'Tuyển dụng mới - Nhân viên kho', 1, 1),
-(6, 'Hired', 0, 12000000, NULL, 6, '2024-01-25', 'Approved', 'Tuyển dụng mới - Dược sĩ bán hàng', 1, 1);
+INSERT INTO Career_Changes (employee_id, change_type, old_salary, new_salary, old_position_id, new_position_id, effective_date, status, reason, approval_reason, is_applied, proposed_by, approved_by) VALUES 
+(1, 'Hired', 0, 30000000, NULL, 1, '2024-01-01', 'Approved', 'Tuyển dụng mới - Quản trị hệ thống', 'Khởi tạo hệ thống', TRUE, 1, 1),
+(2, 'Hired', 0, 25000000, NULL, 2, '2024-01-01', 'Approved', 'Tuyển dụng mới - Quản lý', 'Khởi tạo hệ thống', TRUE, 1, 1),
+(3, 'Hired', 0, 20000000, NULL, 3, '2024-01-10', 'Approved', 'Tuyển dụng mới - Quản lý nhân sự', 'Khởi tạo hệ thống', TRUE, 1, 1),
+(4, 'Hired', 0, 18000000, NULL, 4, '2024-01-15', 'Approved', 'Tuyển dụng mới - Trưởng kho', 'Khởi tạo hệ thống', TRUE, 1, 1),
+(5, 'Hired', 0, 10000000, NULL, 5, '2024-01-20', 'Approved', 'Tuyển dụng mới - Nhân viên kho', 'Khởi tạo hệ thống', TRUE, 1, 1),
+(6, 'Hired', 0, 12000000, NULL, 6, '2024-01-25', 'Approved', 'Tuyển dụng mới - Dược sĩ bán hàng', 'Khởi tạo hệ thống', TRUE, 1, 1);
+
+-- ==========================================================
+-- 7. THÊM CÁC RÀNG BUỘC KHÓA NGOẠI BỔ SUNG (ALTER TABLE)
+-- ==========================================================
+ALTER TABLE Positions ADD CONSTRAINT fk_positions_proposed_by FOREIGN KEY (proposed_by) REFERENCES Users(id);
+ALTER TABLE Positions ADD CONSTRAINT fk_positions_approved_by FOREIGN KEY (approved_by) REFERENCES Users(id);
+
+-- ==========================================================
+-- 8. DỮ LIỆU MẪU BONUS (THƯỞNG / TRỢ CẤP)
+-- ==========================================================
+
+-- Nhóm 1: Trợ cấp xăng xe T3-T5/2026 - 500k - 3 NV (Approved)
+INSERT INTO Bonus (employee_id, bonus_name, amount, start_date, end_date, status, is_active, reason, approval_reason, proposed_by, approved_by) VALUES
+(4, 'Trợ cấp xăng xe', 500000, '2026-03-01', '2026-05-01', 'Approved', TRUE, 'Hỗ trợ chi phí đi lại', 'Đồng ý hỗ trợ nhân viên', 3, 1),
+(5, 'Trợ cấp xăng xe', 500000, '2026-03-01', '2026-05-01', 'Approved', TRUE, 'Hỗ trợ chi phí đi lại', 'Đồng ý hỗ trợ nhân viên', 3, 1),
+(6, 'Trợ cấp xăng xe', 500000, '2026-03-01', '2026-05-01', 'Approved', FALSE, 'Hỗ trợ chi phí đi lại', 'Đồng ý hỗ trợ nhân viên', 3, 1);
+
+-- Nhóm 2: Thưởng hiệu suất Q1/2026 - 2tr - 2 NV (Pending chờ duyệt)
+INSERT INTO Bonus (employee_id, bonus_name, amount, start_date, end_date, status, is_active, reason, proposed_by) VALUES
+(5, 'Thưởng hiệu suất Q1', 2000000, '2026-03-01', '2026-03-01', 'Pending', TRUE, 'Hoàn thành xuất sắc chỉ tiêu kho tháng 1-3', 3),
+(6, 'Thưởng hiệu suất Q1', 2000000, '2026-03-01', '2026-03-01', 'Pending', TRUE, 'Hoàn thành xuất sắc chỉ tiêu bán hàng tháng 1-3', 3);
+
+-- Nhóm 3: Trợ cấp xăng xe nâng cấp cho NV 4 (end_date dài hơn → tách nhóm riêng)
+INSERT INTO Bonus (employee_id, bonus_name, amount, start_date, end_date, status, is_active, reason, approval_reason, proposed_by, approved_by) VALUES
+(4, 'Trợ cấp xăng xe', 500000, '2026-06-01', '2026-12-01', 'Approved', TRUE, 'Nâng cấp trợ cấp cho trưởng kho', 'Đồng ý nâng cấp', 3, 1);
+
+-- Mẫu toggle history: NV 6 bị tắt trợ cấp xăng xe
+INSERT INTO Bonus_Toggle_History (bonus_id, is_active, toggled_by, reason) VALUES
+(3, FALSE, 1, 'Tạm ngưng do vi phạm nội quy');

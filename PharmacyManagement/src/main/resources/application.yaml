@@ -1,7 +1,28 @@
+logging:
+  level:
+    org.springframework.kafka: INFO
+resend:
+  api-key: ${RESEND_API_KEY:re_THscCoss_P3KfEbhqkNQJZDussgMjTFFf}
 spring:
   profiles:
     active: dev
-
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 10MB
+  kafka:
+    bootstrap-servers: {SPRING_KAFKA_BOOTSTRAP_SERVERS:localhost:29092}
+    consumer:
+      group-id: image-upload-group
+      auto-offset-reset: earliest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      properties:
+        spring.json.trusted.packages: "*"
+        spring.json.type.mapping: "com.ct08.PharmacyManagement.common.infra.kafka.ImageUploadMessage:com.ct08.PharmacyManagement.common.event.ImageUpdateEvent,com.ct08.PharmacyManagement.common.event.PasswordEmailEvent:com.ct08.PharmacyManagement.common.event.PasswordEmailEvent,com.ct08.PharmacyManagement.common.event.OtpEmailEvent:com.ct08.PharmacyManagement.common.event.OtpEmailEvent"
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
 server:
   port: 8080
 
@@ -15,3 +36,11 @@ springdoc:
     path: /swagger-ui.html
   api-docs:
     path: /v3/api-docs
+
+
+
+
+cloudinary:
+  cloud-name: ${CLOUDINARY_CLOUD_NAME:dfcb3zzw9}
+  api-key: ${CLOUDINARY_API_KEY:755268818998122}
+  api-secret: ${CLOUDINARY_API_SECRET:m2ml07QP7QdfqaZG6FYFAvwLgEw}

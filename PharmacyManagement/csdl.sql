@@ -38,6 +38,7 @@ CREATE TABLE Users (
     employee_id INT UNIQUE,
     username VARCHAR(50) NOT NULL UNIQUE,
     password_hash VARCHAR(255) NOT NULL,
+    mailstatus VARCHAR(20),
     is_active BOOLEAN DEFAULT TRUE,
     FOREIGN KEY (employee_id) REFERENCES Employees(id) ON DELETE SET NULL
 );

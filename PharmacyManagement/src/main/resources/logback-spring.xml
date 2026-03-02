@@ -1,17 +1,39 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration>
     <appender name="jsonConsole" class="ch.qos.logback.core.ConsoleAppender">
-        <encoder class="net.logstash.logback.encoder.LogstashEncoder">
-            <includeContext>true</includeContext>
-            <customFields>{"service_name": "pharmacy-service"}</customFields>
+        <encoder class="net.logstash.logback.encoder.LoggingEventCompositeJsonEncoder">
+            <providers>
+                <timestamp>
+                    <fieldName>timestamp</fieldName>
+                </timestamp>
 
-            <fieldNames>
-                <timestamp>timestamp</timestamp>
-                <message>message</message>
-                <logger>logger_name</logger>
-                <thread>thread_name</thread>
-                <level>level</level>
-            </fieldNames>
+                <mdc>
+                    <includeMdcKeyName>traceId</includeMdcKeyName>
+                    <includeMdcKeyName>spanId</includeMdcKeyName>
+                    <includeMdcKeyName>userId</includeMdcKeyName>
+                </mdc>
+                <logLevel><fieldName>level</fieldName></logLevel>
+                <globalCustomFields>
+                    {"TYPE_LOG":"APP_LOG"}
+                </globalCustomFields>
+                <arguments/>
+                <message><fieldName>message</fieldName></message>
+
+                <loggerName><fieldName>logger_name</fieldName></loggerName>
+                <threadName><fieldName>thread_name</fieldName></threadName>
+
+                <mdc>
+                    <excludeMdcKeyName>traceId</excludeMdcKeyName>
+                    <excludeMdcKeyName>spanId</excludeMdcKeyName>
+                    <excludeMdcKeyName>userId</excludeMdcKeyName>
+                </mdc>
+                <pattern>
+                    <pattern>
+                        { "service_name": "pharmacy-service" }
+                    </pattern>
+                </pattern>
+                <stackTrace/>
+            </providers>
         </encoder>
     </appender>
 

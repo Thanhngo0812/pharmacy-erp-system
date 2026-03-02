@@ -1,8 +1,9 @@
 package com.ct08.PharmacyManagement.service;
 
-import com.ct08.PharmacyManagement.entity.Roles;
-import com.ct08.PharmacyManagement.entity.Users;
-import com.ct08.PharmacyManagement.repository.UsersRepository;
+import com.ct08.PharmacyManagement.modules.auth.entity.Roles;
+import com.ct08.PharmacyManagement.modules.auth.entity.Users;
+import com.ct08.PharmacyManagement.modules.auth.repository.UsersRepository;
+import com.ct08.PharmacyManagement.modules.auth.service.UserService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -45,16 +46,17 @@ public class UserServiceTest {
     }
 
     private void mockCurrentUserRoles(String... roles) {
-        // SimpleGrantedAuthority vs String authorities - The service uses .getAuthority() which returns String.
+        // SimpleGrantedAuthority vs String authorities - The service uses
+        // .getAuthority() which returns String.
         // But getAuthorities returns collection of GrantedAuthority.
         // My service implementation:
         // authentication.getAuthorities().stream().map(ga -> ga.getAuthority())...
-        
+
         List<SimpleGrantedAuthority> authorities = new java.util.ArrayList<>();
         for (String role : roles) {
             authorities.add(new SimpleGrantedAuthority(role));
         }
-        
+
         // Need to use doReturn because of generics
         doReturn(authorities).when(authentication).getAuthorities();
         when(securityContext.getAuthentication()).thenReturn(authentication);
@@ -84,24 +86,24 @@ public class UserServiceTest {
         userService.lockAccount(2);
 
         verify(usersRepository, times(1)).save(targetUser);
-        assert(!targetUser.getIsActive());
+        assert (!targetUser.getIsActive());
     }
 
     @Test
     void testHRCanLockNormalUser() {
-        mockCurrentUserRoles("ROLE_HR");
+        mockCurrentUserRoles("ROLE_HM");
         Users targetUser = createTargetUser(3, "ROLE_EMPLOYEE");
         when(usersRepository.findById(3)).thenReturn(Optional.of(targetUser));
 
         userService.lockAccount(3);
 
         verify(usersRepository, times(1)).save(targetUser);
-        assert(!targetUser.getIsActive());
+        assert (!targetUser.getIsActive());
     }
 
     @Test
     void testHRCannotLockManager() {
-        mockCurrentUserRoles("ROLE_HR");
+        mockCurrentUserRoles("ROLE_HM");
         Users targetUser = createTargetUser(4, "ROLE_MANAGER");
         when(usersRepository.findById(4)).thenReturn(Optional.of(targetUser));
 
@@ -111,7 +113,7 @@ public class UserServiceTest {
 
     @Test
     void testHRCannotLockWM() {
-        mockCurrentUserRoles("ROLE_HR");
+        mockCurrentUserRoles("ROLE_HM");
         Users targetUser = createTargetUser(5, "ROLE_WM");
         when(usersRepository.findById(5)).thenReturn(Optional.of(targetUser));
 
