@@ -21,7 +21,7 @@ public class BonusController {
     private BonusService bonusService;
 
     /**
-     * Lấy danh sách bonus gom nhóm theo (bonus_name, end_date, amount).
+     * Lấy danh sách bonus gom nhóm theo (bonus_name, end_date, amount, status).
      * ADMIN: xem tất cả. HM: chỉ xem bonus của NV có role WS/SS.
      * Hỗ trợ tìm kiếm theo bonus_name và lọc theo status.
      */

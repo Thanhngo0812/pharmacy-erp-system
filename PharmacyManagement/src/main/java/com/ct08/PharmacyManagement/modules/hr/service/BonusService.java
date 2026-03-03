@@ -33,7 +33,8 @@ public class BonusService {
     private final EmployeesRepository employeesRepository;
 
     /**
-     * Lấy danh sách bonus gom nhóm theo (bonus_name, start_date, end_date, amount).
+     * Lấy danh sách bonus gom nhóm theo (bonus_name, start_date, end_date, amount,
+     * status).
      * ADMIN: xem tất cả. HM: chỉ xem bonus của NV có role WS/SS.
      * Hỗ trợ tìm kiếm nâng cao (amount, date range) và sắp xếp.
      */
@@ -117,10 +118,11 @@ public class BonusService {
             }).collect(Collectors.toList());
         }
 
-        // Grouping logic (Group by name, start, end, amount)
+        // Grouping logic (Group by name, start, end, amount, status)
         Map<String, List<Bonus>> grouped = new LinkedHashMap<>();
         for (Bonus b : bonuses) {
-            String key = b.getBonusName() + "|" + b.getStartDate() + "|" + b.getEndDate() + "|" + b.getAmount();
+            String key = b.getBonusName() + "|" + b.getStartDate() + "|" + b.getEndDate() + "|" + b.getAmount() + "|"
+                    + b.getStatus();
             grouped.computeIfAbsent(key, k -> new ArrayList<>()).add(b);
         }
 
