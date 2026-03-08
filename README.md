@@ -81,7 +81,7 @@ The deployment and delivery process is fully automated, removing all manual prov
 ### Step-by-Step
 1. **Clone the repository:**
    ```bash
-   git clone [YOUR_REPO_URL]
+   git clone https://github.com/Thanhngo0812/pharmacy-erp-system.git
    cd pharmacy-erp-system/PharmacyManagement
    ```
 
