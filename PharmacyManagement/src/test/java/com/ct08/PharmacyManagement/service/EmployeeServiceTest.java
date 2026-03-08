@@ -40,7 +40,7 @@ public class EmployeeServiceTest {
         private com.ct08.PharmacyManagement.modules.hr.repository.EmployeesRepository employeesRepository;
 
         @Mock
-        private com.ct08.PharmacyManagement.common.infra.kafka.KafkaProducerService kafkaProducerService;
+        private com.ct08.PharmacyManagement.common.infra.message.MessageProducerService messageProducerService;
 
         @InjectMocks
         private EmployeeService employeeService;

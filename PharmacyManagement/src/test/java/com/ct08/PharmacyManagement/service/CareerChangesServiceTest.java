@@ -3,7 +3,7 @@ package com.ct08.PharmacyManagement.service;
 import com.ct08.PharmacyManagement.common.event.PasswordEmailEvent;
 import com.ct08.PharmacyManagement.common.exception.ConflictException;
 import com.ct08.PharmacyManagement.common.exception.ResourceNotFoundException;
-import com.ct08.PharmacyManagement.common.infra.kafka.KafkaProducerService;
+import com.ct08.PharmacyManagement.common.infra.message.MessageProducerService;
 import com.ct08.PharmacyManagement.modules.auth.entity.Users;
 import com.ct08.PharmacyManagement.modules.auth.repository.UsersRepository;
 import com.ct08.PharmacyManagement.modules.hr.dto.ApprovalRequest;
@@ -49,7 +49,7 @@ public class CareerChangesServiceTest {
         private UsersRepository usersRepository;
 
         @Mock
-        private KafkaProducerService kafkaProducerService;
+        private MessageProducerService messageProducerService;
 
         @Mock
         private PasswordEncoder passwordEncoder;
@@ -141,7 +141,7 @@ public class CareerChangesServiceTest {
                 verify(careerChangesRepository).save(hiredChange);
                 verify(employeesRepository).save(employee);
                 verify(usersRepository).save(targetUser);
-                verify(kafkaProducerService).sendMessage(eq("user-password-email"), any(PasswordEmailEvent.class));
+                verify(messageProducerService).sendMessage(eq("user-password-email"), any(PasswordEmailEvent.class));
         }
 
         @Test
@@ -168,7 +168,7 @@ public class CareerChangesServiceTest {
                 verify(careerChangesRepository).save(hiredChange);
                 verify(employeesRepository).save(employee);
                 verify(usersRepository).save(targetUser);
-                verify(kafkaProducerService, never()).sendMessage(eq("user-password-email"), any());
+                verify(messageProducerService, never()).sendMessage(eq("user-password-email"), any());
         }
 
         @Test
