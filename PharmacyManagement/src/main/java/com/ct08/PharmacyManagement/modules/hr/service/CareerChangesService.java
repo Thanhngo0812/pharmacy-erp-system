@@ -3,7 +3,7 @@ package com.ct08.PharmacyManagement.modules.hr.service;
 import com.ct08.PharmacyManagement.common.event.PasswordEmailEvent;
 import com.ct08.PharmacyManagement.common.exception.ConflictException;
 import com.ct08.PharmacyManagement.common.exception.ResourceNotFoundException;
-import com.ct08.PharmacyManagement.common.infra.kafka.KafkaProducerService;
+import com.ct08.PharmacyManagement.common.infra.message.MessageProducerService;
 import com.ct08.PharmacyManagement.modules.auth.entity.Users;
 import com.ct08.PharmacyManagement.modules.auth.repository.UsersRepository;
 import com.ct08.PharmacyManagement.modules.hr.dto.ApprovalRequest;
@@ -39,7 +39,7 @@ public class CareerChangesService {
     private UsersRepository usersRepository;
 
     @Autowired
-    private KafkaProducerService kafkaProducerService;
+    private MessageProducerService messageProducerService;
 
     @Autowired
     private PasswordEncoder passwordEncoder;
@@ -165,7 +165,7 @@ public class CareerChangesService {
             targetUser.setPasswordHash(passwordEncoder.encode(newPassword));
 
             String fullName = employee.getLastName() + " " + employee.getFirstName();
-            kafkaProducerService.sendMessage("user-password-email",
+            messageProducerService.sendMessage("user-password-email",
                     new PasswordEmailEvent(
                             targetUser.getId(), employee.getEmail(), fullName, newPassword));
         } else {

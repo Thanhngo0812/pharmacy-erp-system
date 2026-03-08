@@ -15,7 +15,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import com.ct08.PharmacyManagement.modules.auth.dto.ForgotPasswordRequest;
 import com.ct08.PharmacyManagement.modules.auth.dto.ResetPasswordRequest;
 import com.ct08.PharmacyManagement.common.event.OtpEmailEvent;
-import org.springframework.kafka.core.KafkaTemplate;
+import com.ct08.PharmacyManagement.common.infra.message.MessageProducerService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import java.security.SecureRandom;
@@ -39,7 +39,7 @@ public class AuthService {
         private PasswordEncoder passwordEncoder;
 
         @Autowired
-        private KafkaTemplate<String, Object> kafkaTemplate;
+        private MessageProducerService messageProducerService;
 
         @Value("${app.jwt.expiration-milliseconds}")
         private long jwtExpirationDate;
@@ -92,7 +92,7 @@ public class AuthService {
                                 : "User";
 
                 OtpEmailEvent event = new OtpEmailEvent(request.getEmail(), otp, fullName);
-                kafkaTemplate.send("user-otp-email", event);
+                messageProducerService.sendMessage("user-otp-email", event);
         }
 
         public void resetPassword(ResetPasswordRequest request) {

@@ -430,3 +430,13 @@ INSERT INTO Bonus (employee_id, bonus_name, amount, start_date, end_date, status
 -- Mẫu toggle history: NV 6 bị tắt trợ cấp xăng xe
 INSERT INTO Bonus_Toggle_History (bonus_id, is_active, toggled_by, reason) VALUES
 (3, FALSE, 1, 'Tạm ngưng do vi phạm nội quy');
+
+-- ==========================================================
+-- 9. BẢNG OUTBOX PATTERN (THAY THẾ KAFKA)
+-- ==========================================================
+CREATE TABLE outbox_event (
+    id SERIAL PRIMARY KEY,
+    topic VARCHAR(255) NOT NULL,
+    payload TEXT NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);

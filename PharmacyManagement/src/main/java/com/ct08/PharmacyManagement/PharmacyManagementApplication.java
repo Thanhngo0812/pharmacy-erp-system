@@ -7,11 +7,9 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import java.util.TimeZone;
 
-import org.springframework.kafka.annotation.EnableKafka;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
 @SpringBootApplication
-@EnableKafka
 @EnableScheduling
 public class PharmacyManagementApplication {
 

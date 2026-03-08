@@ -5,7 +5,7 @@ import com.ct08.PharmacyManagement.common.event.ImageUpdateEvent;
 import com.ct08.PharmacyManagement.modules.hr.entity.Employees;
 import com.ct08.PharmacyManagement.modules.hr.repository.EmployeesRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.kafka.annotation.KafkaListener;
+
 import org.springframework.stereotype.Component;
 
 import java.io.File;
@@ -19,7 +19,6 @@ public class ImageWorker {
     @Autowired
     private EmployeesRepository employeesRepository;
 
-    @KafkaListener(topics = "employee-image-upload", groupId = "image-module-group")
     public void listen(ImageUpdateEvent event) {
         try {
             String localFilePath = event.getLocalFilePath();
@@ -35,7 +34,7 @@ public class ImageWorker {
                 if (employee != null) {
                     employee.setImageUrl(cloudinaryUrl);
                     employeesRepository.save(employee);
-                    
+
                     // Delete local file after successful upload
                     try {
                         new File(localFilePath).delete();
@@ -45,7 +44,7 @@ public class ImageWorker {
 
                     // Delete old image from Cloudinary
                     if (oldImageUrl != null && !oldImageUrl.isEmpty()) {
-                         cloudinaryService.deleteImage(oldImageUrl);
+                        cloudinaryService.deleteImage(oldImageUrl);
                     }
                 }
             }

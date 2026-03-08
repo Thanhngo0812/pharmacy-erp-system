@@ -44,7 +44,7 @@ public class EmployeeService {
     private com.ct08.PharmacyManagement.modules.hr.repository.EmployeesRepository employeesRepository;
 
     @Autowired
-    private com.ct08.PharmacyManagement.common.infra.kafka.KafkaProducerService kafkaProducerService;
+    private com.ct08.PharmacyManagement.common.infra.message.MessageProducerService messageProducerService;
 
     @Autowired
     private com.ct08.PharmacyManagement.modules.hr.repository.PositionsRepository positionsRepository;
@@ -410,7 +410,7 @@ public class EmployeeService {
             targetUser.setMailStatus("sending");
 
             String fullName = targetEmployee.getLastName() + " " + targetEmployee.getFirstName();
-            kafkaProducerService.sendMessage("user-password-email",
+            messageProducerService.sendMessage("user-password-email",
                     new PasswordEmailEvent(
                             targetUser.getId(), request.getEmail(), fullName, newPassword));
         }
@@ -441,7 +441,7 @@ public class EmployeeService {
                         id,
                         uploadPath.resolve(newFilename).toString(),
                         oldImageUrl);
-                kafkaProducerService.sendMessage("employee-image-upload", event);
+                messageProducerService.sendMessage("employee-image-upload", event);
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -579,7 +579,7 @@ public class EmployeeService {
                         employee.getId(),
                         uploadPath.resolve(newFilename).toString(),
                         "");
-                kafkaProducerService.sendMessage("employee-image-upload", event);
+                messageProducerService.sendMessage("employee-image-upload", event);
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -612,7 +612,7 @@ public class EmployeeService {
 
         if (isAdmin) {
             String fullName = employee.getLastName() + " " + employee.getFirstName();
-            kafkaProducerService.sendMessage("user-password-email",
+            messageProducerService.sendMessage("user-password-email",
                     new PasswordEmailEvent(
                             user.getId(), request.getEmail(), fullName, newPassword));
         }
@@ -722,7 +722,7 @@ public class EmployeeService {
             currentUser.setMailStatus("sending");
 
             String fullName = currentEmployee.getLastName() + " " + currentEmployee.getFirstName();
-            kafkaProducerService.sendMessage("user-password-email",
+            messageProducerService.sendMessage("user-password-email",
                     new PasswordEmailEvent(
                             currentUser.getId(), request.getEmail(), fullName, newPassword));
         }
@@ -759,7 +759,7 @@ public class EmployeeService {
                         currentEmployee.getId(),
                         uploadPath.resolve(newFilename).toString(),
                         oldImageUrl);
-                kafkaProducerService.sendMessage("employee-image-upload", event);
+                messageProducerService.sendMessage("employee-image-upload", event);
             } catch (Exception e) {
                 e.printStackTrace();
             }

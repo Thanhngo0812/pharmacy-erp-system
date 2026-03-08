@@ -1,0 +1,70 @@
+services:
+  app:
+    image: ${DOCKER_USERNAME}/springboot-app:${APP_TAG}
+    container_name: spring_app
+    depends_on:
+      - redis
+    ports:
+      - "8080:8080"
+    environment:
+      # Kết nối Database Supabase
+      - SPRING_PROFILES_ACTIVE=${SPRING_PROFILES_ACTIVE}
+      - SPRING_DATASOURCE_URL=${SPRING_DATASOURCE_URL}
+      - SPRING_DATASOURCE_USERNAME=${SPRING_DATASOURCE_USERNAME}
+      - SPRING_DATASOURCE_PASSWORD=${SPRING_DATASOURCE_PASSWORD}
+
+      # Cấu hình Cloudinary
+      - CLOUDINARY_CLOUD_NAME=${CLOUDINARY_CLOUD_NAME}
+      - CLOUDINARY_API_KEY=${CLOUDINARY_API_KEY}
+      - CLOUDINARY_API_SECRET=${CLOUDINARY_API_SECRET}
+
+      # Bảo mật & Mail
+      - JWT_SECRET=${JWT_SECRET}
+      - RESEND_API_KEY=${RESEND_API_KEY}
+
+      # Kết nối Redis nội bộ Docker
+      - SPRING_REDIS_HOST=redis
+      - SPRING_REDIS_PORT=6379
+      - SERVER_PORT=${PORT}
+    networks:
+      - app-network
+    deploy:
+      resources:
+        limits:
+          memory: 450M # Dành mức RAM cao nhất cho Spring Boot
+    restart: always
+
+  redis:
+    image: redis:7.0-alpine
+    container_name: redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - app-network
+    deploy:
+      resources:
+        limits:
+          memory: 150M # Redis rất nhẹ, 150M là an toàn
+    restart: always
+
+  frontend-app: # Tên service phải khớp với lệnh docker compose pull trong CD
+    image: ${DOCKER_USERNAME}/frontend-app:${APP_TAG}
+    container_name: react_frontend
+    ports:
+      - "80:80" # Cho phép truy cập qua cổng 80 (HTTP bình thường)
+    restart: always
+    networks:
+      - app-network
+    deploy:
+      resources:
+        limits:
+          memory: 100M # Nginx rất nhẹ, 100M là cực kỳ an toàn cho gói 2GB RAM
+
+networks:
+  app-network:
+    driver: bridge
+
+volumes:
+  redis_data:
