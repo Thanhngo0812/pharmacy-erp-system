@@ -5,7 +5,7 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-public interface OutboxEventRepository extends JpaRepository<OutboxEvent, Long> {
+public interface OutboxEventRepository extends JpaRepository<OutboxEvent, Integer> {
 
     // Retrieve events oldest first
     List<OutboxEvent> findAllByOrderByCreatedAtAsc();
